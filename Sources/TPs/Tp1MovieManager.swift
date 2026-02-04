@@ -70,7 +70,9 @@ func displayMenu() {
     print("3. Filtrer par genre")
     print("4. Afficher les statistiques")
     print("5. Ajouter un film")
-    print("6. Quitter")
+    print("6. Afficher le CSV (Console)")
+    print("7. Exporter le CSV (Fichier)")
+    print("8. Quitter")
     print("Votre choix : ", terminator: "")
 }
 
@@ -145,8 +147,18 @@ func startTp1MovieManager() {
                 addMovie(title: t, year: y, rating: r, genre: g, to: &movies)
                 
             case "6":
-                print("Salut!")
-                isRunning = false
+                print("--- Aperçu CSV ---")
+                let content = exportToCSV(movies)
+                print(content)
+                
+            case "7":
+                print("Nom du fichier (ex: films.csv) : ", terminator: "")
+                let filename = readLine() ?? "movies.csv"
+                saveCSV(movies, to: filename)
+                
+            case "8":
+            print("Bye!")
+            isRunning = false
                 
             default:
                 print("Erreur système")
@@ -155,3 +167,32 @@ func startTp1MovieManager() {
     }
 }
 
+// ==========================================
+// PARTIE 5 : Bonus (CSV)
+// ==========================================
+
+func exportToCSV(_ movies: [(title: String, year: Int, rating: Double, genre: String)]) -> String {
+    var csvContent = "Title,Year,Rating,Genre\n"
+    
+    for movie in movies {
+        let safeTitle = movie.title.replacingOccurrences(of: ",", with: ";")
+        let line = "\(safeTitle),\(movie.year),\(movie.rating),\(movie.genre)\n"
+        csvContent += line
+    }
+    return csvContent
+}
+
+func saveCSV(_ movies: [(title: String, year: Int, rating: Double, genre: String)], to filename: String) {
+    let csvString = exportToCSV(movies)
+    
+    if let documentDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+        let fileURL = documentDirectory.appendingPathComponent(filename)
+        
+        do {
+            try csvString.write(to: fileURL, atomically: true, encoding: .utf8)
+            print("✅ Fichier sauvegardé ici : \(fileURL.path)")
+        } catch {
+            print("❌ Erreur lors de la sauvegarde : \(error)")
+        }
+    }
+}
