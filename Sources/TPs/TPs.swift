@@ -4,6 +4,6 @@
 @main
 struct TPs {
     static func main() {
-        print("Hello, world!")
+        startTp1MovieManager()
     }
 }
